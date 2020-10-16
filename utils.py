@@ -93,6 +93,9 @@ def preprocess(data, lemmatize=False, stem=False):
 	lemmatizer = None
 	preprocessed_data = []
 
+	if not isinstance(data, list):
+		data = [data]
+
 	if stem:
 		stemmer = PorterStemmer()
 
@@ -106,9 +109,11 @@ def preprocess(data, lemmatize=False, stem=False):
 
 		# Lower case the text
 		text = text.lower()
-
 		# Replace hyperlinks if any
 		text = re.sub(r"http\S+", r"", text)
+
+		# Replace numericals 
+		text = re.sub(r"[0-9]", r"", text)
 
 		# Tokenize the data
 		tokenized_data = tokenize(text, tokenizer)
@@ -136,7 +141,4 @@ def preprocess(data, lemmatize=False, stem=False):
 
 
 	return preprocessed_data
-
-
-
 
