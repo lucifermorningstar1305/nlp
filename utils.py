@@ -1,5 +1,6 @@
+import nltk
 from nltk.tokenize import TreebankWordTokenizer
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, wordnet
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 import re
 import string
@@ -70,7 +71,21 @@ def deal_with_few_tokens(text):
 		return "saint"
 
 	else:
-		return text
+		return re.sub(r"[.]",r"", text)
+
+
+def get_wordnet_pos(word):
+
+	tag = nltk.pos_tag([word])[0][1][0].upper()
+
+	tag_dict = {
+		"J" : wordnet.ADJ,
+		"N" : wordnet.NOUN,
+		"V" : wordnet.VERB,
+		"R" : wordnet.ADV
+	}
+
+	return tag_dict.get(tag, wordnet.NOUN)
 
 
 
@@ -125,13 +140,15 @@ def preprocess(data, lemmatize=False, stem=False):
 		tokenized_data = [i for i in tokenized_data if i not in STOPWORDS]
 
 		#Remove punctuations
-		tokenized_data = ["" if i in string.punctuation else i for i in tokenized_data]
+		tokenized_data = ["" if re.match(r"[^a-zA-Z]", i) else i for i in tokenized_data]
 
 		# Deal with a few texts
 		tokenized_data = [deal_with_few_tokens(i) for i in tokenized_data]
 
+		tokenized_data = list(filter(lambda x: x not in ['', " "], tokenized_data))
+
 		if lemmatize:
-			tokenized_data = [lemmatizer.lemmatize(i) for i in tokenized_data]
+			tokenized_data = [lemmatizer.lemmatize(i, get_wordnet_pos(i)) for i in tokenized_data]
 
 		if stem:
 			tokenized_data = [stemmer.stem(i) for i in tokenized_data]
