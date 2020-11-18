@@ -160,3 +160,18 @@ def preprocess(data, lemmatize=False, stem=False):
 
 	return preprocessed_data
 
+
+
+def simple_preprocessing(data):
+
+	data = data.strip()
+	data = data.split("\n")
+	data = list(filter(lambda x : x not in ['', ' '], data))
+	for i, d in enumerate(data):
+		d = d.strip()
+		d = re.sub(r"'\w+", r"", d)
+		d = re.sub(r"""[()"'.,;:]""", r"", d)
+		data[i] = d
+
+	return data
+
